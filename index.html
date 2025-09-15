@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+  <meta charset='UTF-8'>
+  <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+
+  <title>IFGF Taichung Seat Selection</title>
+
+  <style>
+    body {
+      margin: 0px;
+      padding: 0px;
+    }
+    .container {
+      display: grid;
+      width: 100%;
+      max-width: 100vw;
+      grid-template-columns: repeat(12, 1fr);
+      gap: 4px;
+      padding: 5px;
+      box-sizing: border-box;
+    }
+    .box {
+      aspect-ratio: 1 / 1;
+      border: 2px solid #f1f1f1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: clamp(10px, 2vw, 14px);
+      color: #555;
+      cursor: pointer;
+      transition: border-color 0.3s, background-color 0.3s;
+    }
+    .box.active {
+      border: 2px solid black;
+      background-color: white;
+      color: #000;
+      font-weight: bold;
+    }
+    .box.occupied {
+      background-color: red;
+    }
+  </style>
+</head>
+<body>
+  <!-- <div class='controls'> -->
+    <!-- <label>Rows: <input type='number' id='rows' value='12' min='1'></label> -->
+    <!-- <label>Columns: <input type='number' id='cols' value='12' min='1'></label> -->
+    <!-- <button id='generate'>Generate</button> -->
+    <!-- <button id='clear'>Clear</button> -->
+  <!-- </div> -->
+
+  <div class='container' id='boxContainer'></div>
+  <button id='clearAll' style='margin-top: 20px; margin-left: 5px; padding: 5px 10px;'>Clear All</button>
+
+  <script>
+    const boxContainer = document.getElementById('boxContainer');
+    const rowInput = document.getElementById('rows');
+    const colInput = document.getElementById('cols');
+    const generateBtn = document.getElementById('generate');
+    const clearBtn = document.getElementById('clear');
+    const clearOccupied = document.getElementById('clearAll');
+
+    // let savedSpace = JSON.parse(localStorage.getItem('boxes')) || [];
+    let savedSpace = [
+      {
+          'row': 0,
+          'col': 0
+      },
+      {
+          'row': 0,
+          'col': 1
+      },
+      {
+          'row': 0,
+          'col': 2
+      },
+      {
+          'row': 0,
+          'col': 3
+      },
+      {
+          'row': 0,
+          'col': 5
+      },
+      {
+          'row': 0,
+          'col': 6
+      },
+      {
+          'row': 0,
+          'col': 7
+      },
+      {
+          'row': 0,
+          'col': 8
+      },
+      {
+          'row': 1,
+          'col': 0
+      },
+      {
+          'row': 1,
+          'col': 1
+      },
+      {
+          'row': 1,
+          'col': 2
+      },
+      {
+          'row': 1,
+          'col': 3
+      },
+      {
+          'row': 1,
+          'col': 5
+      },
+      {
+          'row': 1,
+          'col': 6
+      },
+      {
+          'row': 1,
+          'col': 7
+      },
+      {
+          'row': 1,
+          'col': 8
+      },
+      {
+          'row': 1,
+          'col': 10
+      },
+      {
+          'row': 1,
+          'col': 11
+      },
+      {
+          'row': 2,
+          'col': 0
+      },
+      {
+          'row': 2,
+          'col': 1
+      },
+      {
+          'row': 2,
+          'col': 2
+      },
+      {
+          'row': 2,
+          'col': 3
+      },
+      {
+          'row': 2,
+          'col': 5
+      },
+      {
+          'row': 2,
+          'col': 6
+      },
+      {
+          'row': 2,
+          'col': 7
+      },
+      {
+          'row': 2,
+          'col': 8
+      },
+      {
+          'row': 2,
+          'col': 10
+      },
+      {
+          'row': 2,
+          'col': 11
+      },
+      {
+          'row': 2,
+          'col': 12
+      },
+      {
+          'row': 2,
+          'col': 13
+      },
+      {
+          'row': 2,
+          'col': 15
+      },
+      {
+          'row': 2,
+          'col': 16
+      },
+      {
+          'row': 2,
+          'col': 17
+      },
+      {
+          'row': 2,
+          'col': 18
+      },
+      {
+          'row': 3,
+          'col': 0
+      },
+      {
+          'row': 3,
+          'col': 1
+      },
+      {
+          'row': 3,
+          'col': 2
+      },
+      {
+          'row': 3,
+          'col': 3
+      },
+      {
+          'row': 3,
+          'col': 5
+      },
+      {
+          'row': 3,
+          'col': 6
+      },
+      {
+          'row': 3,
+          'col': 7
+      },
+      {
+          'row': 3,
+          'col': 8
+      },
+      {
+          'row': 3,
+          'col': 10
+      },
+      {
+          'row': 3,
+          'col': 11
+      },
+      {
+          'row': 3,
+          'col': 12
+      },
+      {
+          'row': 3,
+          'col': 13
+      },
+      {
+          'row': 3,
+          'col': 15
+      },
+      {
+          'row': 3,
+          'col': 16
+      },
+      {
+          'row': 3,
+          'col': 17
+      },
+      {
+          'row': 3,
+          'col': 18
+      },
+      {
+          'row': 4,
+          'col': 18
+      },
+      {
+          'row': 4,
+          'col': 17
+      },
+      {
+          'row': 4,
+          'col': 16
+      },
+      {
+          'row': 4,
+          'col': 15
+      },
+      {
+          'row': 5,
+          'col': 17
+      },
+      {
+          'row': 5,
+          'col': 18
+      },
+      {
+          'row': 6,
+          'col': 18
+      },
+      {
+          'row': 5,
+          'col': 16
+      },
+      {
+          'row': 5,
+          'col': 15
+      },
+      {
+          'row': 6,
+          'col': 15
+      },
+      {
+          'row': 6,
+          'col': 16
+      },
+      {
+          'row': 6,
+          'col': 17
+      },
+      {
+          'row': 4,
+          'col': 0
+      },
+      {
+          'row': 5,
+          'col': 0
+      },
+      {
+          'row': 6,
+          'col': 0
+      },
+      {
+          'row': 6,
+          'col': 1
+      },
+      {
+          'row': 5,
+          'col': 1
+      },
+      {
+          'row': 4,
+          'col': 1
+      },
+      {
+          'row': 4,
+          'col': 2
+      },
+      {
+          'row': 4,
+          'col': 3
+      },
+      {
+          'row': 5,
+          'col': 2
+      },
+      {
+          'row': 5,
+          'col': 3
+      },
+      {
+          'row': 6,
+          'col': 2
+      },
+      {
+          'row': 6,
+          'col': 3
+      },
+      {
+          'row': 6,
+          'col': 5
+      },
+      {
+          'row': 5,
+          'col': 5
+      },
+      {
+          'row': 4,
+          'col': 5
+      },
+      {
+          'row': 4,
+          'col': 6
+      },
+      {
+          'row': 5,
+          'col': 6
+      },
+      {
+          'row': 6,
+          'col': 6
+      },
+      {
+          'row': 6,
+          'col': 7
+      },
+      {
+          'row': 5,
+          'col': 7
+      },
+      {
+          'row': 4,
+          'col': 7
+      },
+      {
+          'row': 4,
+          'col': 8
+      },
+      {
+          'row': 5,
+          'col': 8
+      },
+      {
+          'row': 6,
+          'col': 8
+      },
+      {
+          'row': 6,
+          'col': 10
+      },
+      {
+          'row': 5,
+          'col': 10
+      },
+      {
+          'row': 4,
+          'col': 10
+      },
+      {
+          'row': 4,
+          'col': 11
+      },
+      {
+          'row': 5,
+          'col': 11
+      },
+      {
+          'row': 6,
+          'col': 11
+      },
+      {
+          'row': 6,
+          'col': 12
+      },
+      {
+          'row': 5,
+          'col': 12
+      },
+      {
+          'row': 4,
+          'col': 12
+      },
+      {
+          'row': 4,
+          'col': 13
+      },
+      {
+          'row': 5,
+          'col': 13
+      },
+      {
+          'row': 6,
+          'col': 13
+      },
+      {
+          'row': 7,
+          'col': 18
+      },
+      {
+          'row': 7,
+          'col': 17
+      },
+      {
+          'row': 7,
+          'col': 16
+      },
+      {
+          'row': 7,
+          'col': 15
+      },
+      {
+          'row': 7,
+          'col': 13
+      },
+      {
+          'row': 7,
+          'col': 12
+      },
+      {
+          'row': 7,
+          'col': 11
+      },
+      {
+          'row': 7,
+          'col': 10
+      },
+      {
+          'row': 7,
+          'col': 8
+      },
+      {
+          'row': 7,
+          'col': 7
+      },
+      {
+          'row': 7,
+          'col': 6
+      },
+      {
+          'row': 7,
+          'col': 5
+      },
+      {
+          'row': 7,
+          'col': 3
+      },
+      {
+          'row': 7,
+          'col': 2
+      },
+      {
+          'row': 7,
+          'col': 1
+      },
+      {
+          'row': 7,
+          'col': 0
+      },
+      {
+          'row': 9,
+          'col': 0
+      },
+      {
+          'row': 9,
+          'col': 1
+      },
+      {
+          'row': 9,
+          'col': 2
+      },
+      {
+          'row': 9,
+          'col': 3
+      },
+      {
+          'row': 10,
+          'col': 3
+      },
+      {
+          'row': 11,
+          'col': 3
+      },
+      {
+          'row': 11,
+          'col': 2
+      },
+      {
+          'row': 11,
+          'col': 1
+      },
+      {
+          'row': 11,
+          'col': 0
+      },
+      {
+          'row': 10,
+          'col': 0
+      },
+      {
+          'row': 10,
+          'col': 1
+      },
+      {
+          'row': 10,
+          'col': 2
+      }
+    ]
+    let occupiedSpace = JSON.parse(localStorage.getItem('seats')) || [];
+
+    function isSaved(row, col) {
+      return savedSpace.some(item => item.row === row && item.col === col);
+    }
+
+    function isOccupied(row, col) {
+      return occupiedSpace.some(item => item.row === row && item.col === col);
+    }
+
+    function generateGrid(rows, cols) {
+      console.log(cols, rows)
+      boxContainer.innerHTML = '';
+      boxContainer.style.gridTemplateColumns = `repeat(${cols}, 30px)`;
+      boxContainer.style.gridTemplateRows = `repeat(${rows}, 30px)`;
+
+      for (let row = 0; row < rows; row++) {
+        for (let col = 0; col < cols; col++) {
+          const box = document.createElement('div');
+          box.classList.add('box');
+          // box.textContent = `${row},${col}`;
+
+          if (isSaved(row, col)) {
+            box.classList.add('active');
+          }
+
+          if (isOccupied(row, col)) {
+            box.classList.add('occupied');
+          }
+
+          box.addEventListener('click', () => {
+            // box.classList.toggle('active');
+
+            // if (box.classList.contains('active')) {
+            //   savedSpace.push({ row, col });
+            // } else {
+            //   savedSpace = savedSpace.filter(item => !(item.row === row && item.col === col));
+            // }
+
+            // localStorage.setItem('boxes', JSON.stringify(savedSpace));
+            box.classList.toggle('occupied');
+
+            if (box.classList.contains('occupied')) {
+              occupiedSpace.push({ row, col });
+            } else {
+              occupiedSpace = occupiedSpace.filter(item => !(item.row === row && item.col === col));
+            }
+
+            localStorage.setItem('seats', JSON.stringify(occupiedSpace));
+          });
+
+          boxContainer.appendChild(box);
+        }
+      }
+    }
+
+    generateGrid(12, 19);
+
+    // generateBtn.addEventListener('click', () => {
+    //   const rows = parseInt(rowInput.value);
+    //   const cols = parseInt(colInput.value);
+    //   generateGrid(rows, cols);
+    // });
+
+    // clearBtn.addEventListener('click', () => {
+    //   savedSpace = [];
+    //   localStorage.removeItem('boxes');
+    //   generateGrid(parseInt(rowInput.value), parseInt(colInput.value));
+    // });
+
+    clearOccupied.addEventListener('click', () => {
+      occupiedSpace = [];
+      localStorage.removeItem('seats');
+
+      generateGrid(12, 19);
+    });
+  </script>
+</body>
+</html>
