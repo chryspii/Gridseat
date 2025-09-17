@@ -11,18 +11,24 @@
       margin: 0px;
       padding: 0px;
     }
+
+    .controls {
+      margin-top: 20px;
+      margin-left: 5px;
+    }
+
     .container {
       display: grid;
       width: 100%;
       max-width: 100vw;
-      grid-template-columns: repeat(12, 1fr);
       gap: 4px;
       padding: 5px;
       box-sizing: border-box;
     }
+
     .box {
       aspect-ratio: 1 / 1;
-      border: 2px solid #f1f1f1;
+      border: 1px solid #f1f1f1;
       display: flex;
       justify-content: center;
       align-items: center;
@@ -31,12 +37,14 @@
       cursor: pointer;
       transition: border-color 0.3s, background-color 0.3s;
     }
+
     .box.active {
-      border: 2px solid black;
+      border: 1px solid black;
       background-color: white;
       color: #000;
       font-weight: bold;
     }
+
     .box.occupied {
       background-color: red;
     }
@@ -51,7 +59,14 @@
   <!-- </div> -->
 
   <div class='container' id='boxContainer'></div>
-  <button id='clearAll' style='margin-top: 20px; margin-left: 5px; padding: 5px 10px;'>Clear All</button>
+
+  <div class='controls'>
+    <p>
+      Total: <span id='total'></span>
+    </p>
+
+    <button id='clearAll' style='padding: 5px 10px;'>Clear All</button>
+  </div>
 
   <script>
     const boxContainer = document.getElementById('boxContainer');
@@ -60,6 +75,7 @@
     const generateBtn = document.getElementById('generate');
     const clearBtn = document.getElementById('clear');
     const clearOccupied = document.getElementById('clearAll');
+		const total = document.getElementById('total');
 
     // let savedSpace = JSON.parse(localStorage.getItem('boxes')) || [];
     let savedSpace = [
@@ -578,11 +594,14 @@
       return occupiedSpace.some(item => item.row === row && item.col === col);
     }
 
+		function updateTotal() {
+      total.textContent = `${occupiedSpace.length}`;
+    }
+
     function generateGrid(rows, cols) {
-      console.log(cols, rows)
       boxContainer.innerHTML = '';
-      boxContainer.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
-      boxContainer.style.gridTemplateRows = `repeat(${rows}, 1fr)`;
+      boxContainer.style.gridTemplateColumns = `repeat(${cols}, minmax(10px, 30px))`;
+      boxContainer.style.gridTemplateRows = `repeat(${rows}, auto)`;
 
       for (let row = 0; row < rows; row++) {
         for (let col = 0; col < cols; col++) {
@@ -617,6 +636,7 @@
             }
 
             localStorage.setItem('seats', JSON.stringify(occupiedSpace));
+						updateTotal();
           });
 
           boxContainer.appendChild(box);
@@ -625,6 +645,7 @@
     }
 
     generateGrid(12, 19);
+		updateTotal();
 
     // generateBtn.addEventListener('click', () => {
     //   const rows = parseInt(rowInput.value);
